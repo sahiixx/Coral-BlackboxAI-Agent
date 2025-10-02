@@ -18,6 +18,28 @@ The BlackboxAI agent can help you solve any code-related task.
 
 ### 1. Clone & Install Dependencies
 
+#### Quick Start (Recommended)
+
+<details>
+
+```bash
+# In a new terminal clone the repository:
+git clone https://github.com/Coral-Protocol/Coral-BlackboxAI-Agent.git
+
+# Navigate to the project directory:
+cd Coral-BlackboxAI-Agent
+
+# Run the build script (Linux/Mac):
+./build.sh
+
+# Or on Windows:
+# build.bat
+```
+
+</details>
+
+#### Manual Setup
+
 <details>  
 
 ```bash
