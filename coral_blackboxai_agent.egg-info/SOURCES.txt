@@ -1,0 +1,8 @@
+README.md
+main.py
+pyproject.toml
+coral_blackboxai_agent.egg-info/PKG-INFO
+coral_blackboxai_agent.egg-info/SOURCES.txt
+coral_blackboxai_agent.egg-info/dependency_links.txt
+coral_blackboxai_agent.egg-info/requires.txt
+coral_blackboxai_agent.egg-info/top_level.txt
