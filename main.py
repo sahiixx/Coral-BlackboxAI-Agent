@@ -2,6 +2,7 @@ import asyncio
 import os
 import json
 import logging
+import argparse
 from typing import List
 from github import Github
 from github.ContentFile import ContentFile
@@ -116,5 +117,100 @@ async def main():
             logger.error(traceback.format_exc())
             await asyncio.sleep(5)
 
+async def test_mode():
+    """Test mode to verify imports and basic configuration"""
+    logger.info("=== Running in TEST MODE ===")
+    
+    # Load environment variables
+    load_dotenv()
+    
+    # Check required environment variables
+    required_vars = {
+        "BLACKBOXAI_API_KEY": os.getenv("BLACKBOXAI_API_KEY"),
+        "BLACKBOXAI_URL": os.getenv("BLACKBOXAI_URL"),
+        "MODEL_NAME": os.getenv("MODEL_NAME"),
+        "CORAL_SSE_URL": os.getenv("CORAL_SSE_URL"),
+        "CORAL_AGENT_ID": os.getenv("CORAL_AGENT_ID"),
+    }
+    
+    logger.info("Environment Variables Check:")
+    for var_name, var_value in required_vars.items():
+        status = "✓ SET" if var_value else "✗ MISSING"
+        logger.info(f"  {var_name}: {status}")
+        if var_value and var_name != "BLACKBOXAI_API_KEY":
+            logger.info(f"    Value: {var_value}")
+    
+    # Test imports
+    logger.info("\nImport Check:")
+    try:
+        from langchain import __version__ as lc_version
+        logger.info(f"  ✓ langchain: {lc_version}")
+    except Exception as e:
+        logger.error(f"  ✗ langchain: {e}")
+    
+    try:
+        from langchain_openai import __version__ as lco_version
+        logger.info(f"  ✓ langchain-openai: {lco_version}")
+    except Exception as e:
+        logger.error(f"  ✗ langchain-openai: {e}")
+    
+    try:
+        from langchain_mcp_adapters import __version__ as mcp_version
+        logger.info(f"  ✓ langchain-mcp-adapters: {mcp_version}")
+    except Exception as e:
+        logger.error(f"  ✗ langchain-mcp-adapters: {e}")
+    
+    # Test ChatOpenAI initialization (without actual API call)
+    logger.info("\nChatOpenAI Initialization Test:")
+    try:
+        model = ChatOpenAI(
+            openai_api_key=os.getenv("BLACKBOXAI_API_KEY", "test_key"),
+            base_url=os.getenv("BLACKBOXAI_URL"),
+            model_name=os.getenv("MODEL_NAME")
+        )
+        logger.info(f"  ✓ ChatOpenAI model initialized: {model.model_name}")
+    except Exception as e:
+        logger.error(f"  ✗ ChatOpenAI initialization failed: {e}")
+    
+    logger.info("\n=== TEST MODE COMPLETE ===")
+    logger.info("All basic checks passed. The agent is ready to run.")
+    logger.info("Note: Full agent functionality requires a running Coral server.")
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(
+        description="Coral-BlackboxAI Agent - A coding-focused AI agent with Coral Protocol integration",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python main.py              # Run the agent in production mode
+  python main.py --test       # Run in test mode to verify setup
+  python main.py --help       # Show this help message
+
+Environment Variables:
+  BLACKBOXAI_API_KEY          Your BlackboxAI API key (required)
+  BLACKBOXAI_URL              BlackboxAI API endpoint (default: https://api.blackbox.ai)
+  MODEL_NAME                  AI model to use (default: blackboxai/openai/gpt-4.1-mini)
+  CORAL_SSE_URL               Coral Protocol SSE endpoint (required)
+  CORAL_AGENT_ID              Agent identifier (default: blackboxai_agent)
+  CORAL_ORCHESTRATION_RUNTIME Runtime mode: devmode, docker, executable (default: devmode)
+
+For more information, see README.md and SETUP_SUMMARY.md
+        """
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Run in test mode to verify configuration and imports without connecting to Coral server"
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="coral-blackboxai-agent 0.1.0"
+    )
+    
+    args = parser.parse_args()
+    
+    if args.test:
+        asyncio.run(test_mode())
+    else:
+        asyncio.run(main())

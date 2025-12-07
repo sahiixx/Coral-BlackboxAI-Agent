@@ -6,15 +6,28 @@
 # 1. Install UV package manager
 python3 -m pip install uv
 
-# 2. Create virtual environment with Python 3.12
-python3 -m uv venv --python 3.12
+# 2. Create virtual environment with Python 3.12.12
+python3 -m uv venv --python 3.12.12
 
 # 3. Install all dependencies
-python3 -m uv sync
+uv sync
 
 # 4. Configure environment variables
 cp .env.example .env
 # Edit .env and add your BLACKBOXAI_API_KEY
+```
+
+## Verify Setup
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run test mode to verify everything is working
+python main.py --test
+
+# Show help and available options
+python main.py --help
 ```
 
 ## Run the Agent
@@ -23,7 +36,7 @@ cp .env.example .env
 # Activate virtual environment
 source .venv/bin/activate
 
-# Run the agent
+# Run the agent in production mode
 python main.py
 ```
 
@@ -33,15 +46,22 @@ python main.py
 
 ```env
 BLACKBOXAI_API_KEY=your_actual_api_key_here
+BLACKBOXAI_URL=https://api.blackbox.ai
+MODEL_NAME=blackboxai/openai/gpt-4.1-mini
+CORAL_SSE_URL=http://localhost:5555/devmode/exampleApplication/privkey/session1/sse
+CORAL_AGENT_ID=blackboxai_agent
+CORAL_ORCHESTRATION_RUNTIME=devmode
 ```
 
 Get your API key from: https://www.blackbox.ai
 
-## Verify Setup
+## Command Reference
 
 ```bash
-source .venv/bin/activate
-python -c "import langchain; print('✓ Setup successful!')"
+python main.py              # Run agent in production mode
+python main.py --test       # Run test mode (verify setup)
+python main.py --help       # Show help message
+python main.py --version    # Show version
 ```
 
 ## Need Help?

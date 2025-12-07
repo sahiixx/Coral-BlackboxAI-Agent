@@ -37,10 +37,15 @@ All setup verification tests passed successfully:
 - **Created**: `.env` file with placeholder values
 - **Status**: Ready for production API keys
 
-### 4. Documentation
-- **Added**: `SETUP_SUMMARY.md` - Comprehensive setup guide
-- **Added**: `QUICKSTART.md` - Quick reference for developers
-- **Added**: `DEPLOYMENT_READY.md` - This file
+### 4. Main Script Enhancement
+- **Added**: CLI argument support with `--help`, `--test`, and `--version` flags
+- **Added**: Test mode for verifying setup without connecting to Coral server
+- **Improved**: Better error handling and logging
+
+### 5. Documentation
+- **Updated**: `SETUP_SUMMARY.md` - Comprehensive setup guide
+- **Updated**: `QUICKSTART.md` - Quick reference with test mode
+- **Updated**: `DEPLOYMENT_READY.md` - This file
 
 ---
 
@@ -129,22 +134,39 @@ CORAL_ORCHESTRATION_RUNTIME=devmode
 
 ## 🧪 Verification Commands
 
-### Test 1: Verify Setup
+### Test 1: Run Built-in Test Mode (Recommended)
+```bash
+source .venv/bin/activate
+python main.py --test
+```
+This will verify:
+- All environment variables are set
+- All imports work correctly
+- ChatOpenAI model can be initialized
+- Configuration is valid
+
+### Test 2: Show Help
+```bash
+source .venv/bin/activate
+python main.py --help
+```
+
+### Test 3: Check Version
+```bash
+source .venv/bin/activate
+python main.py --version
+```
+
+### Test 4: Manual Import Check
 ```bash
 source .venv/bin/activate
 python -c "import langchain; import langchain_openai; print('✓ Setup successful!')"
 ```
 
-### Test 2: Check Environment
+### Test 5: List Installed Packages
 ```bash
 source .venv/bin/activate
-python -c "from dotenv import load_dotenv; import os; load_dotenv(); print('API Key:', 'SET' if os.getenv('BLACKBOXAI_API_KEY') else 'NOT SET')"
-```
-
-### Test 3: List Installed Packages
-```bash
-source .venv/bin/activate
-python3 -m uv pip list | grep langchain
+uv pip list | grep langchain
 ```
 
 ---

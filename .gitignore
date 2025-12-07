@@ -3,10 +3,10 @@
 *.temp
 venv_creation.log
 uv
-uv.lock
 uvx
 env
 env.fish
 __pycache__/
 *.pyc
 *.pyo
+.venv/

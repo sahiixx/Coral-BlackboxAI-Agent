@@ -76,12 +76,24 @@ cp .env.example .env
 nano .env  # or use your preferred editor
 ```
 
-### Step 5: Run the Agent
+### Step 5: Verify Setup (Recommended)
 ```bash
 # Activate virtual environment (if not already active)
 source .venv/bin/activate
 
-# Run the agent
+# Run test mode to verify everything is working
+python main.py --test
+
+# Show available commands
+python main.py --help
+```
+
+### Step 6: Run the Agent
+```bash
+# Activate virtual environment (if not already active)
+source .venv/bin/activate
+
+# Run the agent in production mode
 python main.py
 ```
 
@@ -90,6 +102,12 @@ python main.py
 chmod +x run_agent.sh
 ./run_agent.sh
 ```
+
+**Available Commands**:
+- `python main.py` - Run agent in production mode
+- `python main.py --test` - Run test mode (verify setup)
+- `python main.py --help` - Show help message
+- `python main.py --version` - Show version
 
 ---
 
@@ -153,19 +171,31 @@ CORAL_ORCHESTRATION_RUNTIME=devmode
 
 ## 🧪 Testing the Setup
 
-### Test 1: Verify Imports
+### Test 1: Run Built-in Test Mode (Recommended)
+```bash
+source .venv/bin/activate
+python main.py --test
+```
+
+**This will verify**:
+- ✓ All environment variables are properly set
+- ✓ All required imports work correctly
+- ✓ ChatOpenAI model can be initialized
+- ✓ Configuration is valid and ready
+
+### Test 2: Show Help and Available Commands
+```bash
+source .venv/bin/activate
+python main.py --help
+```
+
+### Test 3: Manual Import Verification
 ```bash
 source .venv/bin/activate
 python -c "import langchain; import langchain_openai; import langchain_mcp_adapters; print('✓ All imports successful')"
 ```
 
-### Test 2: Verify Environment Variables
-```bash
-source .venv/bin/activate
-python -c "from dotenv import load_dotenv; import os; load_dotenv(); print('API Key set:', bool(os.getenv('BLACKBOXAI_API_KEY')))"
-```
-
-### Test 3: Run the Agent
+### Test 4: Run the Agent in Production Mode
 ```bash
 source .venv/bin/activate
 python main.py
