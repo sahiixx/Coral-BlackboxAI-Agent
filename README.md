@@ -1,216 +1,132 @@
-## [BlackboxAI Agent](https://github.com/Coral-Protocol/Coral-BlackboxAI-Agent)
- 
+# Coral-BlackboxAI-Agent
+
+![Python](https://img.shields.io/badge/python-3.11+-blue) ![Docker](https://img.shields.io/badge/docker-ready-blue) ![Agentic](https://img.shields.io/badge/agentic-harness-purple)
+
 BLACKBOX AI is a coding-focused AI platform that delivers precise, context-aware support to streamline software development and tackle complex programming challenges efficiently.
 
-## Responsibility
+## Table of Contents
 
-The BlackboxAI agent can help you solve any code-related task.
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Agentic Architecture](#agentic-architecture)
+- [Model Routing](#model-routing)
+- [Project Layout](#project-layout)
+- [Development](#development)
+- [Related Repositories](#related-repositories)
 
-## Details
-- **Framework**: LangChain
-- **Tools used**: Coral Server Tools
-- **AI model**: OpenAI GPT-4.1-mini
-- **Date added**: 06/07/25
-- **Reference**: [BlackboxAI](https://www.blackbox.ai/)
-- **License**: MIT
+## Overview
 
-## Setup the Agent
+BLACKBOX AI is a coding-focused AI platform that delivers precise, context-aware support to streamline software development and tackle complex programming challenges efficiently.
 
-### 1. Clone & Install Dependencies
+| | |
+|---|---|
+| **Stack** | python |
+| **Frameworks** | docker, langchain, openai |
+| **Tests** | none detected |
+| **Commits** | 2 |
+| **Last activity** | 2026-08-10 |
+| **Visibility** | public |
 
-#### Quick Start (Recommended)
+## Quick Start
 
-<details>
+### Install
 
 ```bash
-# In a new terminal clone the repository:
-git clone https://github.com/Coral-Protocol/Coral-BlackboxAI-Agent.git
-
-# Navigate to the project directory:
-cd Coral-BlackboxAI-Agent
-
-# Run the build script (Linux/Mac):
-./build.sh
-
-# Or on Windows:
-# build.bat
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt   # or: pip install -e .
 ```
 
-</details>
-
-#### Manual Setup
-
-<details>  
+### Run
 
 ```bash
-# In a new terminal clone the repository:
-git clone https://github.com/Coral-Protocol/Coral-BlackboxAI-Agent.git
-
-# Navigate to the project directory:
-cd Coral-BlackboxAI-Agent
-
-# Download and run the UV installer, setting the installation directory to the current one
-curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=$(pwd) sh
-
-# Create a virtual environment named `.venv` using UV
-uv venv .venv
-
-# Activate the virtual environment
-source .venv/bin/activate
-
-# install uv
-pip install uv
-
-# Install dependencies from `pyproject.toml` using `uv`:
-uv sync
+python main.py
 ```
 
-</details>
+## Agentic Architecture
 
-### 2. Configure Environment Variables
+This repository participates in the [sahiixx agentic harness](https://github.com/sahiixx/agentic-harness) — a shared
+contract for how agents plan, act, verify, and recover across all repos in this account.
 
-Get the API Keys:
-- [BlackboxAI API Key](https://www.blackbox.ai/dashboard)
+**Signal strength:** agentic density score `40` (references to agent,
+tool-call, LLM, RAG and orchestration primitives across the source tree).
 
-<details>
+### Patterns in play
+
+| Pattern | Role here |
+|---|---|
+| **Prompt Chaining** | Deterministic multi-step pipelines where subtasks are known upfront |
+| **Routing** | Classify input, dispatch to the specialist path (cheap model for easy work) |
+| **Parallelization** | Independent subtasks fan out; results aggregated programmatically |
+| **Orchestrator–Workers** | Central planner decomposes dynamically when subtasks can't be predicted |
+| **Evaluator–Optimizer** | Generator/judge split with explicit rubric; bounded retry |
+| **ReAct** | Interleaved reason → act → observe for adaptive tool use |
+| **Reflection** | Self-critique before emitting a final answer |
+
+> Escalation rule: start with the simplest pattern that solves the problem. Add
+> Reflection only when verification fails, Planning only when dependencies emerge,
+> Multi-Agent only when work exceeds a single role or context window.
+
+### Reliability envelope
+
+- **Bounded execution** — every loop has a max-iteration and wall-clock ceiling.
+- **Tool sandboxing** — filesystem/network side effects are isolated and reversible.
+- **Guardrail layering** — validate at input, mid-loop, and output.
+- **Context engineering** — select, compress, isolate; never let raw history grow unbounded.
+- **Self-verification** — check intermediate output against constraints before continuing.
+
+## Model Routing
+
+Agent work in this repo routes through Azure AI Foundry. See [`AGENTS.md`](./AGENTS.md)
+for the full contract.
+
+| Purpose | Deployment | Endpoint |
+|---|---|---|
+| Default / general | `gpt-5.6-sol` | `/openai/v1/chat/completions` |
+| Deep reasoning | `claude-opus-5` | `/openai/v1/responses` **only** |
+| Embeddings | `text-embedding-3-small` | `/openai/v1/embeddings` |
 
 ```bash
-# Create .env file in project root
-cp -r .env.example .env
-```
-</details>
-
-## Run the Agent
-
-You can run in either of the below modes to get your system running.  
-
-- The Executable Model is part of the Coral Protocol Orchestrator which works with [Coral Studio UI](https://github.com/Coral-Protocol/coral-studio).  
-- The Dev Mode allows the Coral Server and all agents to be seaprately running on each terminal without UI support.  
-
-### 1. Executable Mode
-
-Checkout: [How to Build a Multi-Agent System with Awesome Open Source Agents using Coral Protocol](https://github.com/Coral-Protocol/existing-agent-sessions-tutorial-private-temp) and update the file: `coral-server/src/main/resources/application.yaml` with the details below, then run the [Coral Server](https://github.com/Coral-Protocol/coral-server) and [Coral Studio UI](https://github.com/Coral-Protocol/coral-studio). You do not need to set up the `.env` in the project directory for running in this mode; it will be captured through the variables below.
-
-<details>
-
-For Linux or MAC:
-
-```bash
-# PROJECT_DIR="/PATH/TO/YOUR/PROJECT"
-
-applications:
-  - id: "app"
-    name: "Default Application"
-    description: "Default application for testing"
-    privacyKeys:
-      - "default-key"
-      - "public"
-      - "priv"
-
-registry:
-  blackboxai_agent:
-    options:
-      - name: "BLACKBOXAI_API_KEY"
-        type: "string"
-        description: "API key for the service"
-    runtime:
-      type: "executable"
-      command: ["bash", "-c", "${PROJECT_DIR}/run_agent.sh main.py"]
-      environment:
-        - name: "BLACKBOXAI_API_KEY"
-          from: "BLACKBOXAI_API_KEY"
-        - name: "BLACKBOXAI_URL"
-          value: "https://api.blackbox.ai"
-        - name: "MODEL_NAME"
-          value: "blackboxai/openai/gpt-4.1-mini"
-        
-
+export AZURE_FOUNDRY_API_KEY=...        # never commit this
+export AZURE_FOUNDRY_BASE_URL=https://<resource>.openai.azure.com/openai/v1
 ```
 
-For Windows, create a powershell command (run_agent.ps1) and run:
+> **Gotcha:** Claude deployments on Azure return `404 api_not_supported` on
+> `/chat/completions`. They answer **only** via the Responses API.
 
-```bash
-command: ["powershell","-ExecutionPolicy", "Bypass", "-File", "${PROJECT_DIR}/run_agent.ps1","main.py"]
+## Project Layout
+
+```
+AGENTS.md
+Dockerfile
+LICENSE
+README.md
+build.bat
+build.sh
+main.py
+pyproject.toml
+run_agent.ps1
+run_agent.sh
 ```
 
-</details>
-
-### 2. Dev Mode
-
-Ensure that the [Coral Server](https://github.com/Coral-Protocol/coral-server) is running on your system and run below command in a separate terminal.
-
-<details>
+## Development
 
 ```bash
-# Run the agent using `uv`:
-uv run python main.py
+# lint / format before committing
+ruff check . && ruff format .
+
+# run the CI check locally
+gh workflow run hermes-azure-check.yml
 ```
-</details>
 
+Secrets live in environment variables and CI secrets — never in tracked files.
 
-## Example
+## Related Repositories
 
-<details>
+Part of a 84-repository workspace sharing one agentic contract:
 
-
-```bash
-# Input:
-help me design a simple front end
-
-# Output:
-Here is a simple front end example provided by BlackboxAI agent:
+- **[agentic-harness](https://github.com/sahiixx/agentic-harness)** — patterns, contracts, and reference implementations
+- `AGENTS.md` in every repo pins identical model routing
 
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Front End</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-        }
-        h1 {
-            color: #333;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <h1>Welcome to Simple Front End!</h1>
-    <button onclick="showMessage()">Click Me</button>
-    <p id="message"></p>
-
-    <script>
-        function showMessage() {
-            document.getElementById('message').innerText = 'Hello! You clicked the button.';
-        }
-    </script>
-</body>
-</html>
-
----
-
-This creates a basic web page with a heading, a button, and a message that appears when you click the button. Would you like to customize this further or need help with something more specific?
-```
-</details>
-
-
-## Creator Details
-- **Name**: Xinxing
-- **Affiliation**: Coral Protocol
-- **Contact**: [Discord](https://discord.com/invite/Xjm892dtt3)
+<sub>README maintained by the agentic harness · last regenerated 2026-08-10</sub>
